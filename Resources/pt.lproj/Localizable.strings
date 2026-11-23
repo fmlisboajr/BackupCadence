@@ -36,8 +36,10 @@
 "Destination" = "Destino";
 "Back up to" = "Fazer backup em";
 "All destinations" = "Todos os destinos";
-"Full Disk Access: granted" = "Acesso total ao disco: concedido";
-"Full Disk Access: missing" = "Acesso total ao disco: ausente";
-"BackupCadence needs Full Disk Access to change Time Machine settings" = "O BackupCadence precisa de Acesso total ao disco para alterar as configurações do Time Machine";
+"Full Disk Access (optional, lets the agent read the last backup date): granted" = "Acesso total ao disco (opcional, deixa o agente ler a data do último backup): concedido";
+"Full Disk Access (optional, lets the agent read the last backup date): missing" = "Acesso total ao disco (opcional, deixa o agente ler a data do último backup): ausente";
+"Optional: grant Full Disk Access so the agent can read the last backup date" = "Opcional: conceda Acesso total ao disco para o agente ler a data do último backup";
 "Open Full Disk Access settings" = "Abrir ajustes de Acesso total ao disco";
 "After granting it, quit and reopen BackupCadence." = "Depois de conceder, feche e abra o BackupCadence de novo.";
+"Warning: Time Machine automatic backups are also on (double backups)" = "Aviso: os backups automáticos do Time Machine também estão ligados (backups em dobro)";
+"Time Machine automatic backups are off and scheduling is off: no backups will run" = "Os backups automáticos do Time Machine estão desligados e o agendamento também: nenhum backup vai rodar";

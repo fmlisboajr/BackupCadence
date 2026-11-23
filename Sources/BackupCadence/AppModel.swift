@@ -20,7 +20,7 @@ final class AppModel {
     var errorMessage: String?
     var launchAtLogin: Bool
     var fullDiskAccess: Bool = hasFullDiskAccess()
-    var needsFullDiskAccess = false
+    var timeMachineAuto: Bool? = timeMachineAutoBackupEnabled()
 
     init() {
         config = store.loadConfig()
@@ -61,7 +61,7 @@ final class AppModel {
 
     func refresh() {
         fullDiskAccess = hasFullDiskAccess()
-        if fullDiskAccess { needsFullDiskAccess = false }
+        timeMachineAuto = timeMachineAutoBackupEnabled()
         state = store.loadState()
         let client = client
         Task {
@@ -110,16 +110,8 @@ final class AppModel {
         }
     }
 
-    /// Turn scheduling on/off: tmutil disable/enable (admin prompt) + LaunchAgent.
-    /// Turning on requires Full Disk Access (`tmutil disable` needs root AND FDA), so without it no prompt is shown.
+    /// Turn scheduling on/off: flip Time Machine's AutoBackup (admin prompt) + LaunchAgent.
     func setEnabled(_ on: Bool) {
-        fullDiskAccess = hasFullDiskAccess()
-        if on, schedulingAction(hasFullDiskAccess: fullDiskAccess) == .needFullDiskAccess {
-            needsFullDiskAccess = true
-            logAppError("setEnabled(on): Full Disk Access missing, admin prompt skipped")
-            return
-        }
-        needsFullDiskAccess = false
         var step = "admin"
         do {
             if on {
@@ -139,6 +131,11 @@ final class AppModel {
             errorMessage = error.localizedDescription
             logAppError("setEnabled(\(on)) failed at \(step): \(error.localizedDescription)")
         }
+        timeMachineAuto = timeMachineAutoBackupEnabled()
+    }
+
+    var autoBackupConflict: AutoBackupConflict? {
+        BackupCadenceCore.autoBackupConflict(schedulingOn: config.enabled, timeMachineAuto: timeMachineAuto)
     }
 
     func setLaunchAtLogin(_ on: Bool) {

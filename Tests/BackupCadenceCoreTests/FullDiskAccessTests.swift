@@ -12,8 +12,4 @@ import Testing
         #expect(hasFullDiskAccess(paths: ["a", "b"], probe: { $0 == "a" ? .missing : .readable }))
         #expect(!hasFullDiskAccess(paths: ["a"], probe: { _ in .missing }))
     }
-    @Test func decisionBothWays() {
-        #expect(schedulingAction(hasFullDiskAccess: true) == .runAdminPrompt)
-        #expect(schedulingAction(hasFullDiskAccess: false) == .needFullDiskAccess)
-    }
 }

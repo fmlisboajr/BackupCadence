@@ -35,14 +35,6 @@ public func hasFullDiskAccess(
     return false
 }
 
-/// What the app should do when the user turns scheduling on.
-public enum SchedulingAction: Sendable, Equatable { case runAdminPrompt, needFullDiskAccess }
-
-/// Pure decision: without Full Disk Access `tmutil disable` cannot work, so do not prompt for a password.
-public func schedulingAction(hasFullDiskAccess: Bool) -> SchedulingAction {
-    hasFullDiskAccess ? .runAdminPrompt : .needFullDiskAccess
-}
-
 public let fullDiskAccessURLs = [
     "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_AllFiles",
     "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles",

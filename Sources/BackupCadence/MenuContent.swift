@@ -13,10 +13,11 @@ struct MenuContent: View {
         if let e = model.errorMessage ?? model.state.lastError {
             Text("Error: \(e)")
         }
-        if model.needsFullDiskAccess {
-            Text("BackupCadence needs Full Disk Access to change Time Machine settings")
-            Button("Open Full Disk Access settings") { model.openFullDiskAccessSettings() }
-            Text("After granting it, quit and reopen BackupCadence.")
+        if let c = model.autoBackupConflict {
+            switch c {
+            case .doubleBackups: Text("Warning: Time Machine automatic backups are also on (double backups)")
+            case .noBackups: Text("Time Machine automatic backups are off and scheduling is off: no backups will run")
+            }
         }
         Divider()
         Button("Back up now") { model.backUpNow() }

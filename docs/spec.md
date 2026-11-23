@@ -25,8 +25,8 @@ Nome provisório: **BackupCadence** (evita usar "Time Machine", marca da Apple, 
 - Todos os destinos (padrão, igual ao Time Machine) ou um destino específico escolhido da lista de `tmutil destinationinfo`.
 
 ### Ligar e desligar o agendamento
-- Ligar: desliga o backup automático do Time Machine (`tmutil disable`, pede senha de administrador uma vez pelo diálogo padrão do macOS) e instala o agente.
-- Desligar: remove o agente e devolve o backup automático (`tmutil enable`).
+- Ligar: desliga o backup automático do Time Machine (`defaults write /Library/Preferences/com.apple.TimeMachine AutoBackup -bool false`, pede senha de administrador uma vez pelo diálogo padrão do macOS) e instala o agente.
+- Desligar: remove o agente e devolve o backup automático (`AutoBackup -bool true`).
 - O app nunca guarda a senha.
 
 ### Barra de menus
@@ -46,7 +46,7 @@ Três partes num pacote Swift:
 
 1. **Núcleo (biblioteca):** configuração, estado, regra "devo iniciar agora?" como função pura (recebe agora, config, último backup, se está na bateria, segundos ocioso, se já está rodando, pausa; devolve iniciar ou pular com o motivo), cálculo do próximo backup previsto, leitura do `tmutil` (status, último backup, destinos). Coberto por testes.
 2. **Agente (executável de linha de comando):** rodado pelo launchd a cada 5 minutos (LaunchAgent do usuário, `StartInterval` 300; o launchd roda o atrasado depois que o Mac acorda). Lê a config, coleta os sinais (bateria via IOKit, tempo ocioso via CGEventSource, `tmutil status`), aplica a regra e, se for o caso, roda `tmutil startbackup` (com `--destination` quando houver destino escolhido). Grava estado e log. Também aceita `now` (backup imediato) e `--dry-run`.
-3. **App de barra de menus (SwiftUI, `MenuBarExtra`):** edita a config, instala/remove o LaunchAgent em `~/Library/LaunchAgents`, roda `tmutil disable/enable` com privilégio de administrador e mostra o estado. Sem ícone no Dock.
+3. **App de barra de menus (SwiftUI, `MenuBarExtra`):** edita a config, instala/remove o LaunchAgent em `~/Library/LaunchAgents`, grava `AutoBackup` do Time Machine com privilégio de administrador e mostra o estado. Sem ícone no Dock.
 
 Arquivos do usuário em `~/Library/Application Support/BackupCadence/`: `config.json`, `state.json`, `agent.log`.
 

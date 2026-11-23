@@ -12,6 +12,7 @@ func printStatus(store: Store, client: TimeMachineClient, signals: SystemSignals
     let config = store.loadConfig()
     let state = store.loadState()
     print("full disk access: \(hasFullDiskAccess() ? "yes" : "no")")
+    print("time machine automatic backups: \(timeMachineAutoBackupEnabled().map { $0 ? "on" : "off" } ?? "unknown")")
     print("scheduling: \(config.enabled ? "on" : "off"), mode: \(config.mode.rawValue)")
     if let st = try? client.status() {
         print("time machine: \(st.isRunning ? "running" : "idle")" + (st.phase.map { " (\($0))" } ?? ""))

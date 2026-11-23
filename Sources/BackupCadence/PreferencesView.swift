@@ -9,8 +9,8 @@ struct PreferencesView: View {
             Section {
                 Toggle("Scheduling on", isOn: Binding(get: { model.config.enabled }, set: { model.setEnabled($0) }))
                 Toggle("Open at login", isOn: Binding(get: { model.launchAtLogin }, set: { model.setLaunchAtLogin($0) }))
-                Text(model.fullDiskAccess ? "Full Disk Access: granted" : "Full Disk Access: missing")
-                if model.needsFullDiskAccess || !model.fullDiskAccess {
+                Text(model.fullDiskAccess ? "Full Disk Access (optional, lets the agent read the last backup date): granted" : "Full Disk Access (optional, lets the agent read the last backup date): missing")
+                if !model.fullDiskAccess {
                     FullDiskAccessNotice(model: model)
                 }
                 if let e = model.errorMessage { Text(e).foregroundStyle(.red) }
@@ -67,7 +67,7 @@ struct FullDiskAccessNotice: View {
     var model: AppModel
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("BackupCadence needs Full Disk Access to change Time Machine settings").foregroundStyle(.red)
+            Text("Optional: grant Full Disk Access so the agent can read the last backup date").foregroundStyle(.secondary)
             Button("Open Full Disk Access settings") { model.openFullDiskAccessSettings() }
             Text("After granting it, quit and reopen BackupCadence.").font(.caption).foregroundStyle(.secondary)
         }
