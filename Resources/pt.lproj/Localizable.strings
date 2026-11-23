@@ -36,3 +36,8 @@
 "Destination" = "Destino";
 "Back up to" = "Fazer backup em";
 "All destinations" = "Todos os destinos";
+"Full Disk Access: granted" = "Acesso total ao disco: concedido";
+"Full Disk Access: missing" = "Acesso total ao disco: ausente";
+"BackupCadence needs Full Disk Access to change Time Machine settings" = "O BackupCadence precisa de Acesso total ao disco para alterar as configurações do Time Machine";
+"Open Full Disk Access settings" = "Abrir ajustes de Acesso total ao disco";
+"After granting it, quit and reopen BackupCadence." = "Depois de conceder, feche e abra o BackupCadence de novo.";

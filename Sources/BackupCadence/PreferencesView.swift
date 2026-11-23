@@ -9,6 +9,10 @@ struct PreferencesView: View {
             Section {
                 Toggle("Scheduling on", isOn: Binding(get: { model.config.enabled }, set: { model.setEnabled($0) }))
                 Toggle("Open at login", isOn: Binding(get: { model.launchAtLogin }, set: { model.setLaunchAtLogin($0) }))
+                Text(model.fullDiskAccess ? "Full Disk Access: granted" : "Full Disk Access: missing")
+                if model.needsFullDiskAccess || !model.fullDiskAccess {
+                    FullDiskAccessNotice(model: model)
+                }
                 if let e = model.errorMessage { Text(e).foregroundStyle(.red) }
             }
             Section("Schedule") {
@@ -57,4 +61,15 @@ struct PreferencesView: View {
     return Binding(
         get: { cal.date(bySettingHour: minute / 60, minute: minute % 60, second: 0, of: Date()) ?? Date() },
         set: { set(cal.component(.hour, from: $0) * 60 + cal.component(.minute, from: $0)) })
+}
+
+struct FullDiskAccessNotice: View {
+    var model: AppModel
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("BackupCadence needs Full Disk Access to change Time Machine settings").foregroundStyle(.red)
+            Button("Open Full Disk Access settings") { model.openFullDiskAccessSettings() }
+            Text("After granting it, quit and reopen BackupCadence.").font(.caption).foregroundStyle(.secondary)
+        }
+    }
 }

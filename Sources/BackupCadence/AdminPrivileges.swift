@@ -11,7 +11,8 @@ enum AdminPrivileges {
         script.executeAndReturnError(&error)
         if let error {
             let msg = (error[NSAppleScript.errorMessage] as? String) ?? "unknown error"
-            throw AppError.message(msg)
+            let num = (error[NSAppleScript.errorNumber] as? Int).map(String.init) ?? "?"
+            throw AppError.message("\(msg) (AppleScript error \(num); full: \(error))")
         }
     }
 }

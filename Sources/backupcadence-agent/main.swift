@@ -11,6 +11,7 @@ usage: backupcadence-agent <command>
 func printStatus(store: Store, client: TimeMachineClient, signals: SystemSignals) {
     let config = store.loadConfig()
     let state = store.loadState()
+    print("full disk access: \(hasFullDiskAccess() ? "yes" : "no")")
     print("scheduling: \(config.enabled ? "on" : "off"), mode: \(config.mode.rawValue)")
     if let st = try? client.status() {
         print("time machine: \(st.isRunning ? "running" : "idle")" + (st.phase.map { " (\($0))" } ?? ""))

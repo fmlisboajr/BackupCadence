@@ -40,7 +40,11 @@ The agent CLI: `backupcadence-agent tick [--dry-run]`, `now`, `status`. `tick --
 ## Permissions
 
 - **Administrator password**, once each time you turn scheduling on or off, through the standard macOS dialog (needed by `tmutil enable/disable`). The app never sees or stores it.
-- **Full Disk Access** for `BackupCadence.app` (`Contents/MacOS/backupcadence-agent`): `tmutil latestbackup` needs it. Without it the agent still works, but "last backup" is unknown and it relies on the last start time it recorded itself.
+- **Full Disk Access** is needed by **both** programs:
+  - `BackupCadence.app` **(required)**: `tmutil enable/disable` need root AND Full Disk Access. Without it, turning scheduling on shows a notice instead of the password dialog.
+  - `BackupCadence.app/Contents/MacOS/backupcadence-agent` **(optional)**: `tmutil latestbackup` needs it. Without it the agent still works, but "last backup" is unknown and it relies on the last start time it recorded itself. `backupcadence-agent status` prints `full disk access: yes/no`.
+
+  Step by step: open System Settings > Privacy & Security > Full Disk Access (Preferences has a button for it), click `+`, add `BackupCadence.app`, and for the agent also press Cmd+Shift+G in the picker and add `BackupCadence.app/Contents/MacOS/backupcadence-agent`; make sure the switches are on, then quit and reopen the app. **Rebuilding with ad hoc signing invalidates the grant**: remove the entry (`-`) and add it again.
 - A LaunchAgent is written to `~/Library/LaunchAgents/com.backupcadence.agent.plist`. "Open at login" uses the system login-item service.
 
 ## How to undo
@@ -93,7 +97,11 @@ scripts/build-app.sh   # gera build/BackupCadence.app
 ## Permissões
 
 - **Senha de administrador**, uma vez ao ligar ou desligar o agendamento, no diálogo padrão do macOS (necessário para `tmutil enable/disable`). O app nunca guarda a senha.
-- **Acesso total ao disco** para o `backupcadence-agent` dentro do app: `tmutil latestbackup` exige. Sem ele o agente funciona, mas o "último backup" fica desconhecido e usa só o horário de início que ele mesmo registrou.
+- **Acesso total ao disco** é necessário para **os dois** programas:
+  - `BackupCadence.app` **(obrigatório)**: `tmutil enable/disable` exigem root E Acesso total ao disco. Sem ele, ligar o agendamento mostra um aviso em vez do diálogo de senha.
+  - `BackupCadence.app/Contents/MacOS/backupcadence-agent` **(opcional)**: `tmutil latestbackup` exige. Sem ele o agente funciona, mas o "último backup" fica desconhecido e usa só o horário de início que ele mesmo registrou. `backupcadence-agent status` mostra `full disk access: yes/no`.
+
+  Passo a passo: abra Ajustes do Sistema > Privacidade e Segurança > Acesso total ao disco (as Preferências têm um botão), clique em `+`, adicione `BackupCadence.app` e, para o agente, use Cmd+Shift+G no seletor e adicione `BackupCadence.app/Contents/MacOS/backupcadence-agent`; deixe as chaves ligadas, depois feche e abra o app. **Recompilar com assinatura ad hoc invalida a concessão**: remova a entrada (`-`) e adicione de novo.
 - Um LaunchAgent é gravado em `~/Library/LaunchAgents/com.backupcadence.agent.plist`.
 
 ## Como desfazer

@@ -1,4 +1,5 @@
 import Foundation
+import AppKit
 import Observation
 import ServiceManagement
 import BackupCadenceCore
@@ -18,6 +19,8 @@ final class AppModel {
     var destinations: [TMDestination] = []
     var errorMessage: String?
     var launchAtLogin: Bool
+    var fullDiskAccess: Bool = hasFullDiskAccess()
+    var needsFullDiskAccess = false
 
     init() {
         config = store.loadConfig()
@@ -57,6 +60,8 @@ final class AppModel {
     private var effectiveLast: Date? { [lastBackup, state.lastStartedAt].compactMap { $0 }.max() }
 
     func refresh() {
+        fullDiskAccess = hasFullDiskAccess()
+        if fullDiskAccess { needsFullDiskAccess = false }
         state = store.loadState()
         let client = client
         Task {
@@ -74,6 +79,7 @@ final class AppModel {
         Task {
             let result = await Task.detached { runner.backupNow() }.value
             errorMessage = result.error
+            if let e = result.error { logAppError("backUpNow: \(e)") }
             refresh()
         }
     }
@@ -94,20 +100,44 @@ final class AppModel {
         state = s
     }
 
+    private func logAppError(_ message: String) {
+        AgentLog(url: store.paths.logURL).append("app error: \(message)")
+    }
+
+    func openFullDiskAccessSettings() {
+        for s in fullDiskAccessURLs {
+            if let url = URL(string: s), NSWorkspace.shared.open(url) { return }
+        }
+    }
+
     /// Turn scheduling on/off: tmutil disable/enable (admin prompt) + LaunchAgent.
+    /// Turning on requires Full Disk Access (`tmutil disable` needs root AND FDA), so without it no prompt is shown.
     func setEnabled(_ on: Bool) {
+        fullDiskAccess = hasFullDiskAccess()
+        if on, schedulingAction(hasFullDiskAccess: fullDiskAccess) == .needFullDiskAccess {
+            needsFullDiskAccess = true
+            logAppError("setEnabled(on): Full Disk Access missing, admin prompt skipped")
+            return
+        }
+        needsFullDiskAccess = false
+        var step = "admin"
         do {
             if on {
                 try AdminPrivileges.setTimeMachineAutomatic(false)
+                step = "LaunchAgent install"
                 try LaunchAgentManager.install()
             } else {
+                step = "LaunchAgent uninstall"
                 try LaunchAgentManager.uninstall()
+                step = "admin"
                 try AdminPrivileges.setTimeMachineAutomatic(true)
             }
             config.enabled = on
             errorMessage = nil
         } catch {
+            // No rollback (avoids a second password prompt); config.enabled stays as it was.
             errorMessage = error.localizedDescription
+            logAppError("setEnabled(\(on)) failed at \(step): \(error.localizedDescription)")
         }
     }
 
@@ -116,6 +146,7 @@ final class AppModel {
             if on { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() }
         } catch {
             errorMessage = error.localizedDescription
+            logAppError("setLaunchAtLogin(\(on)) failed: \(error)")
         }
         launchAtLogin = SMAppService.mainApp.status == .enabled
     }
