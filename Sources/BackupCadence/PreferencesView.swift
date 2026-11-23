@@ -13,6 +13,12 @@ struct PreferencesView: View {
                 if !model.fullDiskAccess {
                     FullDiskAccessNotice(model: model)
                 }
+                if model.needsManualFrequency { ManualFrequencyNotice(model: model) }
+                if model.showTurnedOffNotice && !model.config.enabled { TurnedOffNotice(model: model) }
+                if model.autoBackupConflict == .doubleBackups {
+                    Text("Warning: Time Machine automatic backups are also on (double backups)").foregroundStyle(.orange)
+                    Button("Open Time Machine settings") { model.openTimeMachineSettings() }
+                }
                 if let e = model.errorMessage { Text(e).foregroundStyle(.red) }
             }
             Section("Schedule") {
@@ -70,6 +76,28 @@ struct FullDiskAccessNotice: View {
             Text("Optional: grant Full Disk Access so the agent can read the last backup date").foregroundStyle(.secondary)
             Button("Open Full Disk Access settings") { model.openFullDiskAccessSettings() }
             Text("After granting it, quit and reopen BackupCadence.").font(.caption).foregroundStyle(.secondary)
+        }
+    }
+}
+
+struct ManualFrequencyNotice: View {
+    var model: AppModel
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Set Time Machine's backup frequency to Manually first").foregroundStyle(.orange)
+            Text("System Settings › General › Time Machine › Options… › Backup frequency: Manually").font(.caption).foregroundStyle(.secondary)
+            Button("Open Time Machine settings") { model.openTimeMachineSettings() }
+            Text("Then turn scheduling on again. macOS protects these settings, so no third-party app can change them.").font(.caption).foregroundStyle(.secondary)
+        }
+    }
+}
+
+struct TurnedOffNotice: View {
+    var model: AppModel
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Time Machine is set to Manually; turn automatic backups back on in Time Machine settings if you want macOS to back up on its own").foregroundStyle(.secondary)
+            Button("Open Time Machine settings") { model.openTimeMachineSettings() }
         }
     }
 }

@@ -43,3 +43,8 @@
 "After granting it, quit and reopen BackupCadence." = "Depois de conceder, feche e abra o BackupCadence de novo.";
 "Warning: Time Machine automatic backups are also on (double backups)" = "Aviso: os backups automáticos do Time Machine também estão ligados (backups em dobro)";
 "Time Machine automatic backups are off and scheduling is off: no backups will run" = "Os backups automáticos do Time Machine estão desligados e o agendamento também: nenhum backup vai rodar";
+"Open Time Machine settings" = "Abrir ajustes do Time Machine";
+"Set Time Machine's backup frequency to Manually first" = "Antes, defina a frequência de backup do Time Machine como Manualmente";
+"System Settings › General › Time Machine › Options… › Backup frequency: Manually" = "Ajustes do Sistema › Geral › Time Machine › Opções… › Frequência de backup: Manualmente";
+"Then turn scheduling on again. macOS protects these settings, so no third-party app can change them." = "Depois ligue o agendamento de novo. O macOS protege esses ajustes, então nenhum app de terceiros consegue alterá-los.";
+"Time Machine is set to Manually; turn automatic backups back on in Time Machine settings if you want macOS to back up on its own" = "O Time Machine está em Manualmente; religue os backups automáticos nos ajustes do Time Machine se quiser que o macOS faça backup sozinho";

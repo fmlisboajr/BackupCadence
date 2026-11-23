@@ -21,7 +21,7 @@ You want backups at 02:00, or only when the Mac is idle and plugged in, not "som
 
 ## How it works
 
-A LaunchAgent runs `backupcadence-agent tick` every 5 minutes. The agent applies a pure rule ("should I start now?") and, if yes, runs `tmutil startbackup`. While scheduling is on, Time Machine's own automatic backup is turned off (the `AutoBackup` preference) so the two do not compete. Files live in `~/Library/Application Support/BackupCadence/` (`config.json`, `state.json`, `agent.log`).
+A LaunchAgent runs `backupcadence-agent tick` every 5 minutes. The agent applies a pure rule ("should I start now?") and, if yes, runs `tmutil startbackup`. Time Machine's own automatic backup must be set to Manually while scheduling is on (a one-time step you do in System Settings) so the two do not compete. Files live in `~/Library/Application Support/BackupCadence/` (`config.json`, `state.json`, `agent.log`).
 
 ## Install
 
@@ -39,7 +39,7 @@ The agent CLI: `backupcadence-agent tick [--dry-run]`, `now`, `status`. `tick --
 
 ## Permissions
 
-- **Administrator password**, once each time you turn scheduling on or off, through the standard macOS dialog. It is used to run `defaults write /Library/Preferences/com.apple.TimeMachine AutoBackup -bool false/true` (Time Machine's "Back Up Automatically"). The app never sees or stores the password, and afterwards it reads the value back to confirm it changed.
+- **One-time setup in System Settings:** set General > Time Machine > Options... > Backup frequency to **Manually**. macOS protects Time Machine's settings, and no third-party app can change them without a signed privileged helper, so BackupCadence does not try (no administrator password, no prompts). When you turn scheduling on, the app reads the setting and, if Time Machine is still automatic, asks you to do this step and offers a button that opens Time Machine settings. Backups themselves start with `tmutil startbackup`, which needs no special permission.
 - **Full Disk Access is optional.** Only `BackupCadence.app/Contents/MacOS/backupcadence-agent` benefits: `tmutil latestbackup` needs it to read the last backup date. Without it the agent still works, but "last backup" is unknown and it relies on the last start time it recorded itself. `backupcadence-agent status` prints `full disk access: yes/no` and `time machine automatic backups: on/off`.
 
   Step by step: open System Settings > Privacy & Security > Full Disk Access (Preferences has a button for it), click `+`, press Cmd+Shift+G in the picker and add `BackupCadence.app/Contents/MacOS/backupcadence-agent`; make sure the switch is on. **Rebuilding with ad hoc signing invalidates the grant**: remove the entry (`-`) and add it again.
@@ -47,15 +47,14 @@ The agent CLI: `backupcadence-agent tick [--dry-run]`, `now`, `status`. `tick --
 
 ## How to undo
 
-Turn **Scheduling** off in Preferences: it removes the LaunchAgent and sets `AutoBackup` back to true. To do it by hand:
+Turn **Scheduling** off in Preferences: it removes the LaunchAgent. Then, if you want macOS to back up on its own again, set Backup frequency back to Hourly/Daily/Weekly in System Settings > General > Time Machine > Options.... To remove the agent by hand:
 
 ```sh
 launchctl bootout gui/$(id -u)/com.backupcadence.agent
 rm ~/Library/LaunchAgents/com.backupcadence.agent.plist
-sudo defaults write /Library/Preferences/com.apple.TimeMachine AutoBackup -bool true   # restores Time Machine automatic backups
 ```
 
-You can also toggle "Back Up Automatically" in System Settings > General > Time Machine. Optionally delete `~/Library/Application Support/BackupCadence/`.
+Optionally delete `~/Library/Application Support/BackupCadence/`.
 
 ## License
 
@@ -94,7 +93,7 @@ scripts/build-app.sh   # gera build/BackupCadence.app
 
 ## Permissões
 
-- **Senha de administrador**, uma vez ao ligar ou desligar o agendamento, no diálogo padrão do macOS. Ela serve para rodar `defaults write /Library/Preferences/com.apple.TimeMachine AutoBackup -bool false/true` ("Fazer backup automaticamente" do Time Machine). O app nunca vê nem guarda a senha e depois lê o valor de volta para confirmar que mudou.
+- **Passo único nos Ajustes do Sistema:** defina Geral > Time Machine > Opções... > Frequência de backup como **Manualmente**. O macOS protege os ajustes do Time Machine e nenhum app de terceiros consegue alterá-los sem um helper privilegiado assinado, então o BackupCadence nem tenta (sem senha de administrador, sem diálogos). Ao ligar o agendamento, o app lê o ajuste e, se o Time Machine ainda estiver automático, pede esse passo e oferece um botão que abre os ajustes do Time Machine. Os backups em si usam `tmutil startbackup`, que não exige permissão especial.
 - **Acesso total ao disco é opcional.** Só o `BackupCadence.app/Contents/MacOS/backupcadence-agent` se beneficia: `tmutil latestbackup` exige para ler a data do último backup. Sem ele o agente funciona, mas o "último backup" fica desconhecido e usa só o horário de início que ele mesmo registrou. `backupcadence-agent status` mostra `full disk access: yes/no` e `time machine automatic backups: on/off`.
 
   Passo a passo: abra Ajustes do Sistema > Privacidade e Segurança > Acesso total ao disco (as Preferências têm um botão), clique em `+`, use Cmd+Shift+G no seletor e adicione `BackupCadence.app/Contents/MacOS/backupcadence-agent`; deixe a chave ligada. **Recompilar com assinatura ad hoc invalida a concessão**: remova a entrada (`-`) e adicione de novo.
@@ -102,15 +101,12 @@ scripts/build-app.sh   # gera build/BackupCadence.app
 
 ## Como desfazer
 
-Desligue o **Agendamento** nas Preferências: o app remove o agente e volta `AutoBackup` para true. Manualmente:
+Desligue o **Agendamento** nas Preferências: o app remove o agente. Depois, se quiser que o macOS volte a fazer backup sozinho, volte a Frequência de backup para De hora em hora/Diariamente/Semanalmente em Ajustes do Sistema > Geral > Time Machine > Opções.... Para remover o agente manualmente:
 
 ```sh
 launchctl bootout gui/$(id -u)/com.backupcadence.agent
 rm ~/Library/LaunchAgents/com.backupcadence.agent.plist
-sudo defaults write /Library/Preferences/com.apple.TimeMachine AutoBackup -bool true   # devolve o backup automático do Time Machine
 ```
-
-Também dá para ligar "Fazer backup automaticamente" em Ajustes do Sistema > Geral > Time Machine.
 
 ## Licença
 

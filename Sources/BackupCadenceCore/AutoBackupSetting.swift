@@ -32,3 +32,18 @@ public func autoBackupConflict(schedulingOn: Bool, timeMachineAuto: Bool?) -> Au
     if !schedulingOn && !auto { return .noBackups }
     return nil
 }
+
+/// What turning scheduling on should do, given Time Machine's automatic setting.
+public enum EnableDecision: Sendable, Equatable { case install, needManualFrequency }
+
+/// Automatic on -> the user must first set the frequency to Manually; off or unknown -> install.
+public func enableDecision(autoBackup: Bool?) -> EnableDecision {
+    autoBackup == true ? .needManualFrequency : .install
+}
+
+/// System Settings locations for Time Machine, tried in order.
+public let timeMachineSettingsURLs = [
+    "x-apple.systempreferences:com.apple.Time-Machine-Settings.extension",
+    "x-apple.systempreferences:com.apple.preference.TimeMachine",
+    "file:///System/Library/PreferencePanes/TimeMachine.prefPane",
+]

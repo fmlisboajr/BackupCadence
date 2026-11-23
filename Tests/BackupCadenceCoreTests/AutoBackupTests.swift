@@ -34,3 +34,13 @@ import Foundation
         #expect(autoBackupConflict(schedulingOn: true, timeMachineAuto: nil) == nil)
     }
 }
+
+@Suite struct EnableDecisionTests {
+    @Test func automaticOnNeedsManualFrequency() { #expect(enableDecision(autoBackup: true) == .needManualFrequency) }
+    @Test func automaticOffInstalls() { #expect(enableDecision(autoBackup: false) == .install) }
+    @Test func unknownInstalls() { #expect(enableDecision(autoBackup: nil) == .install) }
+    @Test func settingsURLsOrder() {
+        #expect(timeMachineSettingsURLs.first == "x-apple.systempreferences:com.apple.Time-Machine-Settings.extension")
+        #expect(timeMachineSettingsURLs.count == 3)
+    }
+}

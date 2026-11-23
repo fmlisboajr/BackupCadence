@@ -15,9 +15,15 @@ struct MenuContent: View {
         }
         if let c = model.autoBackupConflict {
             switch c {
-            case .doubleBackups: Text("Warning: Time Machine automatic backups are also on (double backups)")
+            case .doubleBackups:
+                Text("Warning: Time Machine automatic backups are also on (double backups)")
+                Button("Open Time Machine settings") { model.openTimeMachineSettings() }
             case .noBackups: Text("Time Machine automatic backups are off and scheduling is off: no backups will run")
             }
+        }
+        if model.needsManualFrequency {
+            Text("Set Time Machine's backup frequency to Manually first")
+            Button("Open Time Machine settings") { model.openTimeMachineSettings() }
         }
         Divider()
         Button("Back up now") { model.backUpNow() }

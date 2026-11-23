@@ -110,28 +110,45 @@ final class AppModel {
         }
     }
 
-    /// Turn scheduling on/off: flip Time Machine's AutoBackup (admin prompt) + LaunchAgent.
+    /// Needs the user to set Time Machine's frequency to Manually (we cannot change it without a privileged helper).
+    var needsManualFrequency = false
+    /// Shown after scheduling is turned off.
+    var showTurnedOffNotice = false
+
+    func openTimeMachineSettings() {
+        for s in timeMachineSettingsURLs {
+            if let url = URL(string: s), NSWorkspace.shared.open(url) { return }
+        }
+    }
+
+    /// Turn scheduling on/off: install/remove the LaunchAgent. Never touches Time Machine's own setting.
     func setEnabled(_ on: Bool) {
-        var step = "admin"
+        timeMachineAuto = timeMachineAutoBackupEnabled()
         do {
             if on {
-                try AdminPrivileges.setTimeMachineAutomatic(false)
-                step = "LaunchAgent install"
-                try LaunchAgentManager.install()
+                switch enableDecision(autoBackup: timeMachineAuto) {
+                case .needManualFrequency:
+                    needsManualFrequency = true
+                    showTurnedOffNotice = false
+                    logAppError("Time Machine is still on automatic")
+                    return
+                case .install:
+                    if timeMachineAuto == nil { logAppError("warning: could not read Time Machine automatic setting; enabling anyway") }
+                    try LaunchAgentManager.install()
+                    needsManualFrequency = false
+                    showTurnedOffNotice = false
+                }
             } else {
-                step = "LaunchAgent uninstall"
                 try LaunchAgentManager.uninstall()
-                step = "admin"
-                try AdminPrivileges.setTimeMachineAutomatic(true)
+                needsManualFrequency = false
+                showTurnedOffNotice = true
             }
             config.enabled = on
             errorMessage = nil
         } catch {
-            // No rollback (avoids a second password prompt); config.enabled stays as it was.
             errorMessage = error.localizedDescription
-            logAppError("setEnabled(\(on)) failed at \(step): \(error.localizedDescription)")
+            logAppError("setEnabled(\(on)) failed: \(error.localizedDescription)")
         }
-        timeMachineAuto = timeMachineAutoBackupEnabled()
     }
 
     var autoBackupConflict: AutoBackupConflict? {
